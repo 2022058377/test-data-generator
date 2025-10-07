@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 @DataJpaTest
-public class JpaRepositoryTest {
+class JpaRepositoryTest {
 
     private static final String TEST_AUDITOR = "test_jaewon";
 
