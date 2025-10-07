@@ -22,7 +22,7 @@ public class SchemaField extends AuditingFields {
     private TableSchema tableSchema;
 
     @Setter @Column(nullable = false) private String fieldName;
-    @Setter @Column(nullable = false) private MockDataType mockDataType;
+    @Setter @Column(nullable = false) @Enumerated(EnumType.STRING) private MockDataType mockDataType;
     @Setter @Column(nullable = false) private Integer fieldOrder;
     @Setter @Column(nullable = false) private Integer blankPercent;
 

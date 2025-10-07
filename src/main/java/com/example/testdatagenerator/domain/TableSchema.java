@@ -24,8 +24,9 @@ public class TableSchema extends AuditingFields {
     @OneToMany(mappedBy = "tableSchema", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<SchemaField> schemaFields = new LinkedHashSet<>();
 
-    @Setter private String schemaName;
-    @Setter private String userId;
+    @Setter @Column(nullable = false) private String schemaName;
+    @Setter @Column(nullable = false) private String userId;
+
     @Setter private LocalDateTime exportedAt;
 
 
