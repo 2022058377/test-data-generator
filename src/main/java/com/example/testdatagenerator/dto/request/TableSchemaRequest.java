@@ -11,6 +11,10 @@ public record TableSchemaRequest(
         List<SchemaFieldRequest> schemaFields
 ) {
 
+    public static TableSchemaRequest of(String schemaName, String userid, List<SchemaFieldRequest> schemaFields) {
+        return new TableSchemaRequest(schemaName, userid, schemaFields);
+    }
+
     public TableSchemaDto toDto() {
         return TableSchemaDto.of(
                 this.schemaName,
