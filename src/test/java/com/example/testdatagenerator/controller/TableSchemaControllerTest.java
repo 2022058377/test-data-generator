@@ -65,6 +65,7 @@ public record TableSchemaControllerTest(
                         .with(csrf())
                 )
                 .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attribute("tableSchemaRequest", request))
                 .andExpect(redirectedUrl("/table-schema"));
 
     }

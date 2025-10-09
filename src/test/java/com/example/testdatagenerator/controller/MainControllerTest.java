@@ -27,7 +27,6 @@ record MainControllerTest(
         // when & then
         mvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
-                .andExpect(view().name("index"));
+                .andExpect(forwardedUrl("/table-schema"));
     }
 }
