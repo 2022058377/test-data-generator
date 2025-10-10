@@ -3,6 +3,8 @@ package com.example.testdatagenerator.domain.constant;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -26,8 +28,17 @@ public enum MockDataType {
     private final Set<String> requiredOptions;
     private final MockDataType baseType;
 
+    private static final List<MockDataTypeObject> objects =
+            Arrays.stream(values())
+                    .map(MockDataType::toObject)
+                    .toList();
+
     public boolean isBaseType() {
         return baseType == null;
+    }
+
+    public static List<MockDataTypeObject> toObjects() {
+        return objects;
     }
 
     public MockDataTypeObject toObject() {
