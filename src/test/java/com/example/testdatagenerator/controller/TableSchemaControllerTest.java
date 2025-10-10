@@ -1,10 +1,13 @@
 package com.example.testdatagenerator.controller;
 
 import com.example.testdatagenerator.config.SecurityConfig;
+import com.example.testdatagenerator.domain.constant.ExportFileType;
 import com.example.testdatagenerator.domain.constant.MockDataType;
 import com.example.testdatagenerator.dto.request.SchemaFieldRequest;
+import com.example.testdatagenerator.dto.request.TableSchemaExportRequest;
 import com.example.testdatagenerator.dto.request.TableSchemaRequest;
 import com.example.testdatagenerator.util.FormDataEncoder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(TableSchemaController.class)
 public record TableSchemaControllerTest(
         @Autowired MockMvc mvc,
-        @Autowired FormDataEncoder formDataEncoder) {
+        @Autowired FormDataEncoder formDataEncoder,
+        @Autowired ObjectMapper objectMapper
+) {
 
     @DisplayName("[GET] 테이블 스키마 페이지 -> 테이블 스키마 뷰 (정상)")
     @Test
@@ -37,6 +42,9 @@ public record TableSchemaControllerTest(
         mvc.perform(get("/table-schema"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(model().attributeExists("tableSchema"))
+                .andExpect(model().attributeExists("mockDataTypes"))
+                .andExpect(model().attributeExists("fileTypes"))
                 .andExpect(view().name("table-schema"));
 
     }
@@ -102,13 +110,25 @@ public record TableSchemaControllerTest(
     @Test
     void givenTableSchema_whenDownloading_thenReturnsFile() throws Exception {
         // given
+        TableSchemaExportRequest request = TableSchemaExportRequest.of(
+                "test_schema",
+                100,
+                ExportFileType.JSON,
+                List.of(
+                        SchemaFieldRequest.of("id", MockDataType.ROW_NUMBER, 1, 0, null, null),
+                        SchemaFieldRequest.of("row1", MockDataType.STRING, 2, 0, "option", "well"),
+                        SchemaFieldRequest.of("age", MockDataType.NUMBER, 3, 20, null, null)
+                )
+        );
+
+        String queryParam = formDataEncoder.encode(request, false);
 
         // when & then
-        mvc.perform(get("/table-schema/export"))
+        mvc.perform(get("/table-schema/export?" + queryParam))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
                 .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=table-schema.txt"))
-                .andExpect(content().string("download complete!"));
+                .andExpect(content().json(objectMapper.writeValueAsString(request)));
 
 
     }
