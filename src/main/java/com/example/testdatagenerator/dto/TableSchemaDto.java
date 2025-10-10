@@ -1,6 +1,5 @@
 package com.example.testdatagenerator.dto;
 
-import com.example.testdatagenerator.domain.SchemaField;
 import com.example.testdatagenerator.domain.TableSchema;
 
 import java.time.LocalDateTime;
