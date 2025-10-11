@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,6 +46,25 @@ public record TableSchemaControllerTest(
                 .andExpect(model().attributeExists("tableSchema"))
                 .andExpect(model().attributeExists("mockDataTypes"))
                 .andExpect(model().attributeExists("fileTypes"))
+                .andExpect(view().name("table-schema"));
+
+    }
+
+    @DisplayName("[GET] 테이블 스키마 조회, 로그인 + 특정 테이블 스키마 (정상)")
+    @Test
+    void givenAuthenticatedUserAndSchemaName_whenRequesting_thenShowTableSchemaView() throws Exception {
+        // given
+        var schemaName = "test_schema";
+
+        // when & then
+        mvc.perform(get("/table-schema").queryParam("schemaName", schemaName))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(model().attributeExists("tableSchema"))
+                //.andExpect(model().attribute("tableSchema", hasProperty("schemaName", is(schemaName))))
+                .andExpect(model().attributeExists("mockDataTypes"))
+                .andExpect(model().attributeExists("fileTypes"))
+                .andExpect(content().string(containsString(schemaName)))
                 .andExpect(view().name("table-schema"));
 
     }
@@ -87,6 +107,7 @@ public record TableSchemaControllerTest(
         mvc.perform(get("/table-schema/my-schemas"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(model().attributeExists("tableSchemas"))
                 .andExpect(view().name("my-schemas"));
 
     }
@@ -102,7 +123,7 @@ public record TableSchemaControllerTest(
                         .with(csrf())
                 )
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/my-schemas"));
+                .andExpect(redirectedUrl("/table-schema/my-schemas"));
 
     }
 
