@@ -123,7 +123,7 @@ public record TableSchemaControllerTest(
                         .with(csrf())
                 )
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/my-schemas"));
+                .andExpect(redirectedUrl("/table-schema/my-schemas"));
 
     }
 
