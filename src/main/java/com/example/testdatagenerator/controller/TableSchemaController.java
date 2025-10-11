@@ -5,6 +5,7 @@ import com.example.testdatagenerator.domain.constant.MockDataType;
 import com.example.testdatagenerator.dto.request.TableSchemaExportRequest;
 import com.example.testdatagenerator.dto.request.TableSchemaRequest;
 import com.example.testdatagenerator.dto.response.SchemaFieldResponse;
+import com.example.testdatagenerator.dto.response.SimpleTableSchemaResponse;
 import com.example.testdatagenerator.dto.response.TableSchemaResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,8 +17,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,10 +31,13 @@ public class TableSchemaController {
     private final ObjectMapper objectMapper;
 
     @GetMapping("/table-schema")
-    public String tableSchema(Model model) {
-        var TableSchema = defaultTableSchema();
+    public String tableSchema(
+            @RequestParam(required = false) String schemaName,
+            Model model)
+    {
+        var tableSchema = defaultTableSchema(schemaName);
 
-        model.addAttribute("tableSchema", TableSchema);
+        model.addAttribute("tableSchema", tableSchema);
         model.addAttribute("mockDataTypes", MockDataType.toObjects());
         model.addAttribute("fileTypes", Arrays.stream(ExportFileType.values()).toList());
 
@@ -51,7 +57,13 @@ public class TableSchemaController {
     }
 
     @GetMapping("/table-schema/my-schemas")
-    public String mySchema() {
+    public String mySchema(
+            Model model
+    ) {
+        var TableSchemas = mySampleSchemas();
+
+        model.addAttribute("tableSchemas", TableSchemas);
+
         return "my-schemas";
     }
 
@@ -70,15 +82,24 @@ public class TableSchemaController {
                 .body(json(request));
     }
 
-    private TableSchemaResponse defaultTableSchema() {
+    private TableSchemaResponse defaultTableSchema(String schemaName) {
         return new TableSchemaResponse(
-                "schema_name",
-                "JAEWON",
+                schemaName != null ? schemaName : "schema_name",
+                "JaeWon",
                 List.of(
-                        new SchemaFieldResponse("fieldName1", MockDataType.STRING, 1, 0, null, null),
-                        new SchemaFieldResponse("fieldName1", MockDataType.NUMBER, 2, 0, null, null),
-                        new SchemaFieldResponse("fieldName1", MockDataType.NAME, 3, 0, null, null)
+                        new SchemaFieldResponse("id", MockDataType.STRING, 1, 0, null, null),
+                        new SchemaFieldResponse("name", MockDataType.NAME, 2, 10, null, null),
+                        new SchemaFieldResponse("age", MockDataType.NUMBER, 3, 20, null, null),
+                        new SchemaFieldResponse("my_car", MockDataType.CAR, 4, 50, null, null)
                 )
+        );
+    }
+
+    private List<SimpleTableSchemaResponse> mySampleSchemas() {
+        return List.of(
+                new SimpleTableSchemaResponse("schema_name1", "JaeWon", LocalDate.of(2025, 10, 10).atStartOfDay()),
+                new SimpleTableSchemaResponse("schema_name2", "JaeWon", LocalDate.of(2025, 10, 11).atStartOfDay()),
+                new SimpleTableSchemaResponse("schema_name3", "JaeWon", LocalDate.of(2025, 10, 12).atStartOfDay())
         );
     }
 
