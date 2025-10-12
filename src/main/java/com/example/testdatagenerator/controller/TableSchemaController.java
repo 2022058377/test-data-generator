@@ -7,11 +7,14 @@ import com.example.testdatagenerator.dto.request.TableSchemaRequest;
 import com.example.testdatagenerator.dto.response.SchemaFieldResponse;
 import com.example.testdatagenerator.dto.response.SimpleTableSchemaResponse;
 import com.example.testdatagenerator.dto.response.TableSchemaResponse;
+import com.example.testdatagenerator.dto.security.GithubUser;
+import com.example.testdatagenerator.service.TableSchemaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,16 +30,21 @@ import java.util.List;
 @Controller
 public class TableSchemaController {
 
+    private final TableSchemaService tableSchemaService;
     private final ObjectMapper objectMapper;
 
     @GetMapping("/table-schema")
     public String tableSchema(
+            @AuthenticationPrincipal GithubUser githubUser,
             @RequestParam(required = false) String schemaName,
             Model model)
     {
-        var tableSchema = defaultTableSchema(schemaName);
+        TableSchemaResponse tableSchema = (githubUser != null && schemaName != null)
+                ? TableSchemaResponse.fromDto(
+                tableSchemaService.loadMySchema(githubUser.id(), schemaName))
+                :defaultTableSchema(schemaName);
 
-        model.addAttribute("tableSchema", tableSchema);
+                model.addAttribute("tableSchema", tableSchema);
         model.addAttribute("mockDataTypes", MockDataType.toObjects());
         model.addAttribute("fileTypes", Arrays.stream(ExportFileType.values()).toList());
 
@@ -58,11 +65,15 @@ public class TableSchemaController {
 
     @GetMapping("/table-schema/my-schemas")
     public String mySchema(
+            @AuthenticationPrincipal GithubUser githubUser,
             Model model
     ) {
-        var TableSchemas = mySampleSchemas();
+        List<SimpleTableSchemaResponse> tableSchemas = tableSchemaService.loadMySchemas(githubUser.id())
+                .stream()
+                .map(SimpleTableSchemaResponse::fromDto)
+                .toList();
 
-        model.addAttribute("tableSchemas", TableSchemas);
+        model.addAttribute("tableSchemas", tableSchemas);
 
         return "my-schemas";
     }
@@ -92,14 +103,6 @@ public class TableSchemaController {
                         new SchemaFieldResponse("age", MockDataType.NUMBER, 3, 20, null, null),
                         new SchemaFieldResponse("my_car", MockDataType.CAR, 4, 50, null, null)
                 )
-        );
-    }
-
-    private List<SimpleTableSchemaResponse> mySampleSchemas() {
-        return List.of(
-                new SimpleTableSchemaResponse("schema_name1", "JaeWon", LocalDate.of(2025, 10, 10).atStartOfDay()),
-                new SimpleTableSchemaResponse("schema_name2", "JaeWon", LocalDate.of(2025, 10, 11).atStartOfDay()),
-                new SimpleTableSchemaResponse("schema_name3", "JaeWon", LocalDate.of(2025, 10, 12).atStartOfDay())
         );
     }
 
