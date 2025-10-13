@@ -148,6 +148,7 @@ class TableSchemaControllerTest {
         // given
         String schemaName = "test_schema";
         var githubUser = new GithubUser("test-id", "test-name", "test@email.com");
+        willDoNothing().given(tableSchemaService).deleteMySchema(githubUser.id(), schemaName);
 
         // when & then
         mvc.perform(post("/table-schema/my-schemas/{schemaName}", schemaName)
@@ -156,7 +157,7 @@ class TableSchemaControllerTest {
                 )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/table-schema/my-schemas"));
-
+        then(tableSchemaService).should().deleteMySchema(githubUser.id(), schemaName);
     }
 
     @DisplayName("[GET] 테이블 스키마 파일 다운로드 -> 테이블 스키마 파일 (정상)")

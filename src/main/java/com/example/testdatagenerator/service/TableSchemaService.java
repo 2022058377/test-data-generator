@@ -44,4 +44,8 @@ public class TableSchemaService {
                                 () -> tableSchemaRepository.save(dto.createEntity())
                         );
     }
+
+    public void deleteMySchema(String userId, String schemaName) {
+        tableSchemaRepository.deleteByUserIdAndSchemaName(userId, schemaName);
+    }
 }
