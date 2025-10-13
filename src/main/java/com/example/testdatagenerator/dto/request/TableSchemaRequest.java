@@ -7,18 +7,17 @@ import java.util.stream.Collectors;
 
 public record TableSchemaRequest(
         String schemaName,
-        String userid,
         List<SchemaFieldRequest> schemaFields
 ) {
 
-    public static TableSchemaRequest of(String schemaName, String userid, List<SchemaFieldRequest> schemaFields) {
-        return new TableSchemaRequest(schemaName, userid, schemaFields);
+    public static TableSchemaRequest of(String schemaName, List<SchemaFieldRequest> schemaFields) {
+        return new TableSchemaRequest(schemaName, schemaFields);
     }
 
-    public TableSchemaDto toDto() {
+    public TableSchemaDto toDto(String userid) {
         return TableSchemaDto.of(
                 this.schemaName,
-                this.userid,
+                userid,
                 null,
                 this.schemaFields.stream()
                         .map(SchemaFieldRequest::toDto)

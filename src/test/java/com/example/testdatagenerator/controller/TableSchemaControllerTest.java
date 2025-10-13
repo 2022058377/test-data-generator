@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -90,7 +89,6 @@ class TableSchemaControllerTest {
         // given
         TableSchemaRequest request = TableSchemaRequest.of(
                 "test_schema",
-                "jaewon",
                 List.of(
                         SchemaFieldRequest.of(
                                 "id", MockDataType.ROW_NUMBER,  1, 0, null, null),
@@ -101,6 +99,7 @@ class TableSchemaControllerTest {
                 )
         );
         var githubUser = new GithubUser("test-id", "test-name", "test@email.com");
+        willDoNothing().given(tableSchemaService).saveMySchema(request.toDto(githubUser.id()));
 
         // when & then
         mvc.perform(post("/table-schema")
@@ -112,7 +111,7 @@ class TableSchemaControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(flash().attribute("tableSchemaRequest", request))
                 .andExpect(redirectedUrl("/table-schema"));
-
+        then(tableSchemaService).should().saveMySchema(request.toDto(githubUser.id()));
     }
 
     @DisplayName("[GET] 내 스키마 목록 페이지 -> 내 스키마 목록 뷰 (정상)")

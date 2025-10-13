@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -90,6 +91,20 @@ class TableSchemaServiceTest {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("테이블 스키마가 없습니다. - userId: " + userId + ", schemaName: " + schemaName);
         then(tableSchemaRepository).should().findByUserIdAndSchemaName(userId, schemaName);
+    }
+
+    @DisplayName("테이블 스키마가 주어지면, 테이블 스키마를 추가한다.")
+    @Test
+    void giveTableSchema_whenInserting_thenCreatesTableSchema() {
+        // given
+        TableSchemaDto dto = TableSchemaDto.of("table1", "userId", null, Set.of());
+        given(tableSchemaRepository.save(dto.toEntity())).willReturn(null);
+
+        // when
+        sut.saveMySchema(dto);
+
+        // then
+        then(tableSchemaRepository).should().save(dto.toEntity());
     }
 
 }
