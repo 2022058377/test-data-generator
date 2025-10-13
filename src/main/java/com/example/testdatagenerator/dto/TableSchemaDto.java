@@ -61,11 +61,23 @@ public record TableSchemaDto(
         );
     }
 
-    public TableSchema toEntity() {
-        TableSchema entity = new TableSchema(this.schemaName, this.userId);
+    public TableSchema createEntity() {
+        TableSchema entity = TableSchema.of(this.schemaName, this.userId);
         entity.addSchemaFields(this.schemaFields.stream().
-                map(SchemaFieldDto::toEntity)
+                map(SchemaFieldDto::createEntity)
                 .toList());
+
+        return entity;
+    }
+
+    public TableSchema updateEntity(TableSchema entity) {
+        if(this.schemaName != null) entity.setSchemaName(this.schemaName);
+        if(this.userId != null) entity.setUserId(this.userId);
+        entity.setExportedAt(this.exportedAt);
+        if (this.schemaFields != null) {
+            entity.clearSchemaFields();
+            entity.addSchemaFields(this.schemaFields.stream().map(SchemaFieldDto::createEntity).toList());
+        }
 
         return entity;
     }
