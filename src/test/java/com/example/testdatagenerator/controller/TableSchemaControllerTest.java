@@ -99,7 +99,7 @@ class TableSchemaControllerTest {
                 )
         );
         var githubUser = new GithubUser("test-id", "test-name", "test@email.com");
-        willDoNothing().given(tableSchemaService).saveMySchema(request.toDto(githubUser.id()));
+        willDoNothing().given(tableSchemaService).upsertTableSchema(request.toDto(githubUser.id()));
 
         // when & then
         mvc.perform(post("/table-schema")
@@ -109,9 +109,8 @@ class TableSchemaControllerTest {
                         .with(oauth2Login().oauth2User(githubUser))
                 )
                 .andExpect(status().is3xxRedirection())
-                .andExpect(flash().attribute("tableSchemaRequest", request))
-                .andExpect(redirectedUrl("/table-schema"));
-        then(tableSchemaService).should().saveMySchema(request.toDto(githubUser.id()));
+                .andExpect(redirectedUrlTemplate("/table-schema?schemaName={schemaName}", request.schemaName()));
+        then(tableSchemaService).should().upsertTableSchema(request.toDto(githubUser.id()));
     }
 
     @DisplayName("[GET] 내 스키마 목록 페이지 -> 내 스키마 목록 뷰 (정상)")

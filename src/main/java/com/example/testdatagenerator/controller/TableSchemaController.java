@@ -44,7 +44,7 @@ public class TableSchemaController {
                 tableSchemaService.loadMySchema(githubUser.id(), schemaName))
                 :defaultTableSchema(schemaName);
 
-                model.addAttribute("tableSchema", tableSchema);
+        model.addAttribute("tableSchema", tableSchema);
         model.addAttribute("mockDataTypes", MockDataType.toObjects());
         model.addAttribute("fileTypes", Arrays.stream(ExportFileType.values()).toList());
 
@@ -57,9 +57,9 @@ public class TableSchemaController {
             TableSchemaRequest request,
             RedirectAttributes attributes
     ) {
-        tableSchemaService.saveMySchema(request.toDto(githubUser.id()));
+        tableSchemaService.upsertTableSchema(request.toDto(githubUser.id()));
 
-        attributes.addFlashAttribute("tableSchemaRequest", request);
+        attributes.addAttribute("schemaName", request.schemaName());
 
         return "redirect:/table-schema";
     }
