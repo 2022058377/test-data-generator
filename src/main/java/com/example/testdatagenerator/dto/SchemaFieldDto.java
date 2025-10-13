@@ -87,7 +87,7 @@ public record SchemaFieldDto(
         );
     }
 
-    public SchemaField toEntity() {
+    public SchemaField createEntity() {
         return SchemaField.of(
                 this.fieldName,
                 this.mockDataType,
