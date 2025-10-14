@@ -8,9 +8,8 @@ import com.example.testdatagenerator.dto.response.SchemaFieldResponse;
 import com.example.testdatagenerator.dto.response.SimpleTableSchemaResponse;
 import com.example.testdatagenerator.dto.response.TableSchemaResponse;
 import com.example.testdatagenerator.dto.security.GithubUser;
+import com.example.testdatagenerator.service.SchemaExportService;
 import com.example.testdatagenerator.service.TableSchemaService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,7 @@ import java.util.List;
 public class TableSchemaController {
 
     private final TableSchemaService tableSchemaService;
-    private final ObjectMapper objectMapper;
+    private final SchemaExportService schemaExportService;
 
     @GetMapping("/table-schema")
     public String tableSchema(
@@ -90,12 +89,21 @@ public class TableSchemaController {
     }
 
     @GetMapping("/table-schema/export")
-    public ResponseEntity<String> exportTableSchema(TableSchemaExportRequest request) {
+    public ResponseEntity<String> exportTableSchema(
+            @AuthenticationPrincipal GithubUser githubUser,
+            TableSchemaExportRequest request) {
+        String body = schemaExportService.export(
+                request.fileType(),
+                request.toDto(githubUser != null ? githubUser.id() : null),
+                request.rowCount());
+        String fileName = request.schemaName() + "." +
+                request.fileType().name().toLowerCase();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=table-schema.txt")
-                .body(json(request));
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                .body(body);
     }
+
 
     private TableSchemaResponse defaultTableSchema(String schemaName) {
         return new TableSchemaResponse(
@@ -110,11 +118,4 @@ public class TableSchemaController {
         );
     }
 
-    private String json(Object object) {
-        try {
-            return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException jpe) {
-            throw new RuntimeException(jpe);
-        }
-    }
 }
