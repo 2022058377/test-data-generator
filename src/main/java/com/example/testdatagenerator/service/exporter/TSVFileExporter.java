@@ -1,10 +1,15 @@
 package com.example.testdatagenerator.service.exporter;
 
 import com.example.testdatagenerator.domain.constant.ExportFileType;
+import com.example.testdatagenerator.service.generator.MockDataGeneratorContext;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TSVFileExporter extends DelimiterBasedFileExporter {
+
+    public TSVFileExporter(MockDataGeneratorContext context) {
+        super(context);
+    }
 
     @Override
     public ExportFileType getType() {

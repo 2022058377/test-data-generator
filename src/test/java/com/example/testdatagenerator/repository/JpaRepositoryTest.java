@@ -50,12 +50,12 @@ class JpaRepositoryTest {
 
 
         // when
-        List<MockData> mockDataList = mockDataRepository.findAll();
+        List<MockData> mockDataList = mockDataRepository.findByMockDataType(MockDataType.NAME);
         List<SchemaField> schemaFieldList = schemaFieldRepository.findAll();
         List<TableSchema> tableSchemaList = tableSchemaRepository.findAll();
 
         // then
-        assertThat(mockDataList).hasSize(231);
+        assertThat(mockDataList).hasSize(100);
         assertThat(schemaFieldList)
                 .hasSize(4)
                 .first().extracting("tableSchema")
