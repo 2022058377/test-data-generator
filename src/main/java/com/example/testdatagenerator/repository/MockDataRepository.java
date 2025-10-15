@@ -10,5 +10,6 @@ import java.util.List;
 
 public interface MockDataRepository extends JpaRepository<MockData, Long> {
 
+    @Cacheable("mockData")
     List<MockData> findByMockDataType(MockDataType mockDataType);
 }
